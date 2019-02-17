@@ -8,7 +8,8 @@ var ProjectSchema = Schema({
     description: String,
     category: String,
     year: Number,
-    langs: [String]
+    langs: String,
+    image: String
 });
 
 //mongoose guarda el nombre de la entidad 'Project' quitando la 
