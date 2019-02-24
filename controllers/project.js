@@ -1,6 +1,7 @@
 'use strict'
 
 var Project = require('../models/project');
+var fs = require('fs');
 
 var controller = {
     home: function(req, res){
@@ -94,6 +95,41 @@ var controller = {
             
             return res.status(200).send({project: deletedProject});
         });
+    },
+
+    uploadImage: function(req, res) {
+        var projectId = req.params.id;
+        var fileName = 'Image no subida...';
+
+        if(req.files) {
+            var filePath = req.files.image.path;
+            var fileSplit = filePath.split('\\');
+            var fileName = fileSplit[1];
+            var extSplit = fileName.split('\.');
+            var fileExt = extSplit[1];
+
+            if(fileExt == 'png' || fileExt == 'jpg' || fileExt == 'jpeg' || fileExt == 'gif') {
+
+                Project.findByIdAndUpdate(projectId, {image: fileName}, {new: true}, (err, projectUpdated) => {
+                    if(err) return res.status(500).send({message: 'La imagen no se ha subido.'});
+    
+                    if(!projectUpdated) return res.status(404).send({message: 'La imagen no se encuentra.'});
+    
+                    return res.status(200).send({project: projectUpdated});
+                });
+
+            }else {
+                //uso libreria file system de nodeJS para borrar un archivo/unlinky que no se agrege si es invalida.
+                fs.unlink(filePath, (err)=>{
+                    return res.status(200).send({message: 'extension no valida'});
+                });
+            }
+
+
+            
+        }else{
+            return res.status(200).send({message: fileName});
+        }
     }
 };
 
